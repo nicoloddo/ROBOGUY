@@ -5,6 +5,7 @@ using UnityEngine;
 public class EnemyController : MonoBehaviour
 {
     // ASSIGNATIONS
+    private Renderer objectRenderer;
     private GameManager gameManager;
     private GameObject playerObj;
     private GameObject belonging_uienemy;
@@ -18,15 +19,21 @@ public class EnemyController : MonoBehaviour
     private float enemySize = 1;
     
     // BOUNDERS
-    private float maxX = 8.5f;
-    private float maxY = 4.8f;
     public bool insidebound = false;
 
     // Start is called before the first frame update
     void Start()
     {
         gameManager = FindObjectOfType<GameManager>();
-        gameObject.tag = "OutboundEnemy";
+        objectRenderer = GetComponent<Renderer>();
+
+        if (objectRenderer.IsVisibleFrom(Camera.main))
+            {
+                gameObject.tag = "Enemy";
+            } else
+            {
+                gameObject.tag = "OutboundEnemy";
+            }
     }
 
     // Update is called once per frame
@@ -38,6 +45,7 @@ public class EnemyController : MonoBehaviour
         {
             transform.position = Vector2.MoveTowards(transform.position, playerObj.transform.position, speed * Time.deltaTime);
 
+            /*
             if (Mathf.Abs(transform.position.x) > maxX || Mathf.Abs(transform.position.y) > maxY)
             {
                 insidebound = false;
@@ -47,6 +55,15 @@ public class EnemyController : MonoBehaviour
             {
                 insidebound = true;
                 gameObject.tag = "Enemy";
+            }
+            */
+
+            if (objectRenderer.IsVisibleFrom(Camera.main))
+            {
+                gameObject.tag = "Enemy";
+            } else
+            {
+                gameObject.tag = "OutboundEnemy";
             }
 
             // DEATH
@@ -71,7 +88,7 @@ public class EnemyController : MonoBehaviour
         
     }
 
-    private void OnTriggerEnter(Collider other)
+    private void OnTriggerEnter2D(Collider2D other)
     {
         if (gameObject.tag == "Enemy") // If enemy is inside bounds and game is not finished (SavedEnemy tag)
         {
@@ -81,6 +98,7 @@ public class EnemyController : MonoBehaviour
                 Instantiate(explosion, transform.position, Quaternion.identity);
                 other.gameObject.tag = "Untagged";
                 health -= 1;
+                Destroy(other.gameObject);
                 if (health <= 0)
                 {
                     Die("bullet");
@@ -90,7 +108,8 @@ public class EnemyController : MonoBehaviour
             if (other.gameObject.CompareTag("Player"))
             {
                 Instantiate(explosion, transform.position, Quaternion.identity);
-                Die("player_contact");
+                Die("player_contact");   
+                gameObject.tag = "DeadEnemy";             
             }
         }        
     }

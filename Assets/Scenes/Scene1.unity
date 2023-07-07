@@ -977,11 +977,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerskill: 0
+  average_diffmodifier: 0
   remaining_health_history: 
   score_history: 
+  diffmodifier_history: []
   playerskill_history: []
   n_sessions: 0
   recent_sessions_threshold: 2
+  suggestedLevel: -1
   decrease_count: 0
   increase_count: 0
 --- !u!4 &285339258
@@ -3540,6 +3543,51 @@ PrefabInstance:
     m_RemovedComponents:
     - {fileID: -1286549452825784100, guid: 1442c5e3832c9f542874814199a87449, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 1442c5e3832c9f542874814199a87449, type: 3}
+--- !u!1 &1209203145
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1209203147}
+  - component: {fileID: 1209203146}
+  m_Layer: 6
+  m_Name: ScreenWalls
+  m_TagString: Bound
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1209203146
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1209203145}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 60a8d920635e16a4fb35ae3f6057513d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ColliderThickness: 0.1
+--- !u!4 &1209203147
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1209203145}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.37661207, y: -0.4912242, z: -0.08328652}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 11
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1229847238
 GameObject:
   m_ObjectHideFlags: 0
@@ -5519,8 +5567,9 @@ MonoBehaviour:
   playerShootDelay: 0.5
   playerAimDelay: 1
   playerLaunchForce: 15
-  playerFreeShooting: 0
+  playerFreeShooting: 1
   robotAttackLevel: 3
+  difficultyLevel: 1.5
   instant_difficulty_modifier: 0
   increase_threshold: 2
   decrease_threshold: 2
@@ -7198,9 +7247,25 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: -7017416217625953307, guid: 5cdba3a14d33b494cae6b6b38795e08f, type: 3}
+      propertyPath: m_Constraints
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5826766552048622584, guid: 5cdba3a14d33b494cae6b6b38795e08f, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 5826766552282885129, guid: 5cdba3a14d33b494cae6b6b38795e08f, type: 3}
       propertyPath: m_Name
       value: Robot
+      objectReference: {fileID: 0}
+    - target: {fileID: 5826766552282885129, guid: 5cdba3a14d33b494cae6b6b38795e08f, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 5826766552282885129, guid: 5cdba3a14d33b494cae6b6b38795e08f, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5826766552282885133, guid: 5cdba3a14d33b494cae6b6b38795e08f, type: 3}
       propertyPath: aimDelay
@@ -7212,7 +7277,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5826766552282885133, guid: 5cdba3a14d33b494cae6b6b38795e08f, type: 3}
       propertyPath: bulletsToShoot
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5826766552282885134, guid: 5cdba3a14d33b494cae6b6b38795e08f, type: 3}
       propertyPath: m_RootOrder

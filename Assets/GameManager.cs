@@ -49,7 +49,7 @@ public class GameManager : MonoBehaviour
     // enemy amount
 
     // DIFFICULTY PARAMETER
-    public float difficultyLevel = 1;
+    public float difficultyLevel = 1.5f;
     private float max_difficulty = 3;
     private float min_difficulty = 1;
     private float difficultyModifier = 0;
@@ -77,7 +77,7 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            difficultyLevel = 1;
+            difficultyLevel = 1.5f;
         }
 
         if (PlayerPrefs.HasKey("AutoDifficultyIsOn"))

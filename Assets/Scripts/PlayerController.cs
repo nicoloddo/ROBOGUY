@@ -7,7 +7,8 @@ public class PlayerController : MonoBehaviour
 
     // ASSIGNMENTS
     private Animator animator;
-    private CharacterController characterController;
+    //private CharacterController characterController;
+    private Rigidbody2D rigidBody;
     private GameManager gameManager;
     public Animator engine_animator;
     public GameObject explosion;
@@ -23,29 +24,29 @@ public class PlayerController : MonoBehaviour
     private float totalRotation = 0;
     private int last_dir = 1; // 1 = right, -1 = left
     private float movX, movY;
+    private float forceAmount;
 
     // PARAMETERS
     private float health;
     private float rotationSpeed = 5f;
-    private float forwardSpeed = 0.3f;
-    private float upwardSpeed = 0.3f;
+    private float playerSpeed = 5f;
+    private float forceMultiplier = 100f;
     private float shootDelay = 0.5f;
     private float aimDelay = 1f;
     private float launchForce = 15f;
     private float autoaimSpeed = 5f;
-    private int bulletsToShoot = 1;
+    public int bulletsToShoot = 1;
     public float enemyDamage = 0;
     public float bulletDamage = 1;
     private bool freeShooting = false;
+    private float bullet_offset = 0.5f; // offset to spawn the bullet where the weapon is
 
     // BOUNDERS
     private float maxRotation = 75;
-    private float maxX = 8.5f;
-    private float maxY = 4.8f;
 
     // AIMS
-    private Vector3 targetDirection;
-    private Vector3 aim;
+    private Vector2 targetDirection;
+    private Vector2 aim;
     private bool aimed = false;
 
     // Start is called before the first frame update
@@ -53,7 +54,10 @@ public class PlayerController : MonoBehaviour
     {
         gameManager = FindObjectOfType<GameManager>();
         animator = GetComponent<Animator>();
-        characterController = GetComponent<CharacterController>();        
+        //characterController = GetComponent<CharacterController>();      
+        rigidBody = GetComponent<Rigidbody2D>();     
+
+        forceAmount = playerSpeed * forceMultiplier;
     }
 
     // Update is called once per frame
@@ -73,11 +77,13 @@ public class PlayerController : MonoBehaviour
     private void FixedUpdate()
     {
         // MOVEMENT
-        movX = inputHorizontal * forwardSpeed;
-        movY = inputVertical * upwardSpeed;
+        movX = inputHorizontal;
+        movY = inputVertical;
 
-        characterController.Move(new Vector2(movX, 0));
-        characterController.Move(new Vector2(0, movY));
+        rigidBody.velocity = Vector2.zero; 
+        rigidBody.angularVelocity = 0; 
+        Vector2 force = new Vector2(movX, movY) * forceAmount;
+        rigidBody.AddForce(force);
 
         // Calculate and update new orientation
         if(last_dir < 0)
@@ -95,41 +101,6 @@ public class PlayerController : MonoBehaviour
             totalRotation = -maxRotation;
         }
         transform.rotation = Quaternion.Euler(0f, 0f, totalRotation);
-        /*
-        if (inputHorizontal*last_dir < 0) // not of the same sign -> switch side
-        {
-            transform.localScale = Vector3.Scale(transform.localScale, new Vector3(-1, 1, 1)); // Pointwise product just to flip the x of localScale
-            totalRotation *= -1;
-            last_dir *= -1;
-        }
-        */
-
-
-        // Check boundaries
-        if (Mathf.Abs(transform.position.x) > maxX || Mathf.Abs(transform.position.y) > maxY) {
-
-            gameObject.GetComponent<CharacterController>().enabled = false;
-
-            if (transform.position.x > maxX)
-            {
-                transform.position = new Vector3(maxX, transform.position.y, 0f);
-            }
-            if (transform.position.x < -maxX)
-            {
-                transform.position = new Vector3(-maxX, transform.position.y, 0f);
-            }
-            if (transform.position.y > maxY)
-            {
-                transform.position = new Vector3(transform.position.x, maxY, 0f);
-            }
-            if (transform.position.y < -1*maxY)
-            {
-                transform.position = new Vector3(transform.position.x, -1*maxY, 0f);
-            }
-
-            gameObject.GetComponent<CharacterController>().enabled = true;
-        }
-
 
         // AIM
         if (last_dir == 1)
@@ -231,26 +202,44 @@ public class PlayerController : MonoBehaviour
     {
         animator.Play("shoot", 0, 0.25f);
         GameObject bullet_obj;
-        bullet_obj = Instantiate(bullet, transform.position, transform.rotation);
-        for (int i=1; i < amount; i++)
-            bullet_obj = Instantiate(bullet, transform.position, transform.rotation);
-            bullet_obj.GetComponent<Rigidbody>().AddForce(aim * launchForce, ForceMode.Impulse);
+        Vector2 spawnPosition = transform.position + bullet_offset * transform.right;
+
+        if(amount > 0)
+        {
+            bullet_obj = Instantiate(bullet, spawnPosition, transform.rotation);
+            for (int i=1; i < amount-1; i++)
+                bullet_obj = Instantiate(bullet, spawnPosition, transform.rotation);
+                bullet_obj.GetComponent<Rigidbody2D>().AddForce(aim * launchForce, ForceMode2D.Impulse);
+        }
+        
     }
 
-    private void OnTriggerEnter(Collider other)
+    private void OnTriggerEnter2D(Collider2D other)
     {
         if(gameManager.GetWonOrLost() == 0) // while still playing
         {
+            if (other.gameObject.CompareTag("BulletPlayerDamage"))
+            {
+                // the collider of the projectile is set to not collide with the player to not create uncontrolled forces on the player
+                // instead, a child object of the projectile handles the collisions with the player, therefore the collider is of a child of the bullet
+                GameObject bullet = other.transform.parent.gameObject;
+                if (bullet.GetComponent<Bullet>().GetLife() < 1) // if the bullet exists since less than 1 second
+                {
+                    return;
+                }
+                else
+                {
+                    other.gameObject.tag = "Untagged";
+                    health -= bulletDamage;
+                    Instantiate(explosion, transform.position, Quaternion.identity);
+
+                    Destroy(bullet); 
+                }
+            }
+
             if (other.gameObject.CompareTag("Enemy"))
             {
                 health -= enemyDamage;
-            }
-
-            if (other.gameObject.CompareTag("Bullet"))
-            {
-                other.gameObject.tag = "Untagged";
-                health -= bulletDamage;
-                Instantiate(explosion, transform.position, Quaternion.identity);
             }
         }        
     }

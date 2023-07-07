@@ -11,15 +11,17 @@ TagManager:
   - SavedEnemy
   - Bound
   - PlayerModel
+  - BulletPlayerDamage
+  - DeadEnemy
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - Player
   - Water
   - UI
-  - 
-  - 
+  - Walls
+  - Projectile
   - 
   - 
   - 
